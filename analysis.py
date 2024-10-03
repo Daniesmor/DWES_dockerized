@@ -15,6 +15,11 @@ from openpyxl.utils import get_column_letter
 from openpyxl.reader.excel import load_workbook
 import time
 from collections import Counter
+
+
+
+
+
 class HandleExcel():
     def __init__(self):
         self.head_row_labels = [u'Name', u'Abstraction', u'Parallelism', u'LogicalThinking', u'Synchronization',
@@ -58,33 +63,36 @@ class HandleExcel():
             # print("info[allDir]", info[allDir])
 
         return info
+    
+    def column_letter_to_index(self, column_letter):
+        return ord(column_letter.upper()) - ord('A') + 1
 
     def write_to_excel_with_openpyxl(self, records, head_row, save_excel_name):
-        # 新建一个workbook
+        # Crear un nuevo workbook
         wb = Workbook()
-        # 新建一个excelWriter
-        # ew = ExcelWriter(workbook=wb)
-        # 设置文件输出路径与名称
+        # Configurar el nombre del archivo de salida
         dest_filename = save_excel_name
-        # 第一个sheet是ws
-        ws = wb.worksheets[0]
-        # 设置ws的名称
+        # Obtener la primera hoja
+        ws = wb.active  # Usa wb.active para obtener la hoja activa directamente
+        # Establecer el título de la hoja
         ws.title = "range names"
-        # 写第一行，标题行
+        
+        # Escribir la primera fila (encabezados)
         for h_x in range(1, len(head_row) + 1):
-            h_col = get_column_letter(h_x)
-            ws.cell('%s%s' % (h_col, 1)).value = '%s' % (head_row[h_x - 1])
-        # 写第二行及其以后的那些行
+            h_col = h_x  # h_x ya es un índice de columna numérico
+            ws.cell(row=1, column=h_col).value = head_row[h_x - 1]
+
+        # Escribir las filas de datos
         row = 2
         for name in records:
-            ws.cell('%s%s' % ('A', row)).value = '%s' % name
+            ws.cell(row=row, column=1).value = name  # Nombre en la primera columna
             col = 2
             for point in records[name]:
-                col_num = get_column_letter(col)
-                ws.cell('%s%s' % (col_num, row)).value = '%s' % records[name][point]
+                ws.cell(row=row, column=col).value = records[name][point]  # Valor en la columna correspondiente
                 col += 1
             row += 1
-        # ew.save(filename=dest_filename)
+
+        # Guardar el archivo de Excel
         wb.save(filename=dest_filename)
 
 
@@ -108,6 +116,7 @@ def unzip_scratch(filename):
         return None
 
 def ctAnalysis(argv):
+    print("asdas")
     raw_json = unzip_scratch(argv)
     encoded_json = codecs.decode(raw_json, 'utf-8', 'strict')
     input = InputStream(encoded_json)
@@ -116,7 +125,17 @@ def ctAnalysis(argv):
     parser = ScratchParser(stream)
     tree = parser.json()
     walker = ParseTreeWalker()
+    print("vamos a llamar a listener")
     listener = ScratchListener()
+    if hasattr(listener, 'block_count'):
+        print("block_count:", listener.block_count)
+    else:
+        print("El listener no tiene el atributo block_count.")
+
+    print("Tipo de listener:", type(listener))  # Esto debería mostrar <class 'ScratchListener.ScratchListener'>
+
+    print("Instancia de listener:", listener)
+    print(listener.block_count)
     walker.walk(listener, tree)
     ct_score = {}
     ct_score['abstract'] = 0

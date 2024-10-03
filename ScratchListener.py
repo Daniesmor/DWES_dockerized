@@ -1,17 +1,26 @@
 # Generated from C:/Users/cxl/Desktop/Scratch3Analysis\Scratch.g4 by ANTLR 4.7
+print("guapisimosasd")
+
 from antlr4 import *
 import json
 from MyBlock import MyBlock
+
+print("guapisimos")
 if __name__ is not None and "." in __name__:
-    from .ScratchParser import ScratchParser
+    from ScratchParser import ScratchParser
+    print("soy este")
 else:
     from ScratchParser import ScratchParser
+    print("o mejor este")
 
 # This class defines a complete listener for a parse tree produced by ScratchParser.
 class ScratchListener(ParseTreeListener):
+    print("fuera de iinit")
     def __init__(self):
+        print("se ha llamado a scratch listenert")
         self.id_block = {}
         self.block_count = 0
+        print("Se ha definido el valor de block count a: ", self.block_count)
         self.sprite_count = 0
         self.comment_count = 0
         self.broadcast_received = []
